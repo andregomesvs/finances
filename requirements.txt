@@ -1,0 +1,2 @@
+# O projeto não possui dependências Python. Consulte package.json e pnpm-lock.yaml.
+# A persistência usa Firebase Admin para Node.js.
