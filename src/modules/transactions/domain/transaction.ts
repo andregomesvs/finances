@@ -3,7 +3,7 @@ export type TransactionType = "INCOME" | "EXPENSE" | "TRANSFER";
 export interface Transaction {
   id: string;
   userId: string;
-  accountId: string;
+  accountId: string | null;
   categoryId: string | null;
   type: TransactionType;
   amountInCents: bigint;

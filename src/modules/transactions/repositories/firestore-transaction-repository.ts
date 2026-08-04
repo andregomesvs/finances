@@ -6,7 +6,7 @@ import type { TransactionRepository } from "./transaction-repository";
 import { getFirestoreDatabase } from "@/infrastructure/firebase/firestore";
 
 interface TransactionDocument {
-  accountId: string;
+  accountId: string | null;
   categoryId: string | null;
   type: Transaction["type"];
   amountInCents: string;
@@ -35,31 +35,57 @@ export class FirestoreTransactionRepository implements TransactionRepository {
 
   async listByPeriod(userId: string, from: Date, to: Date): Promise<Transaction[]> {
     const snapshot = await this.collection(userId)
-      .where("deletedAt", "==", null)
       .where("occurredAt", ">=", Timestamp.fromDate(from))
       .where("occurredAt", "<=", Timestamp.fromDate(to))
       .orderBy("occurredAt", "desc")
       .get();
 
-    return snapshot.docs.map((document) =>
-      this.toDomain(document.id, userId, document.data() as TransactionDocument),
-    );
+    return snapshot.docs
+      .map((document) => ({ id: document.id, data: document.data() as TransactionDocument }))
+      .filter((document) => !document.data.deletedAt)
+      .map((document) => this.toDomain(document.id, userId, document.data));
+  }
+
+  async listRecent(userId: string, limit: number): Promise<Transaction[]> {
+    const safeLimit = Math.min(Math.max(limit * 3, limit), 100);
+    const snapshot = await this.collection(userId)
+      .orderBy("occurredAt", "desc")
+      .limit(safeLimit)
+      .get();
+
+    return snapshot.docs
+      .map((document) => ({ id: document.id, data: document.data() as TransactionDocument }))
+      .filter((document) => !document.data.deletedAt)
+      .slice(0, limit)
+      .map((document) => this.toDomain(document.id, userId, document.data));
   }
 
   async save(transaction: Transaction): Promise<void> {
-    const document: TransactionDocument = {
-      accountId: transaction.accountId,
-      categoryId: transaction.categoryId,
-      type: transaction.type,
-      amountInCents: transaction.amountInCents.toString(),
-      description: transaction.description,
-      occurredAt: Timestamp.fromDate(transaction.occurredAt),
-      createdAt: Timestamp.fromDate(transaction.createdAt),
-      updatedAt: Timestamp.fromDate(transaction.updatedAt),
-      deletedAt: null,
-    };
+    await this.saveMany([transaction]);
+  }
 
-    await this.collection(transaction.userId).doc(transaction.id).set(document);
+  async saveMany(transactions: Transaction[]): Promise<void> {
+    if (transactions.length === 0) return;
+
+    const batch = getFirestoreDatabase().batch();
+
+    for (const transaction of transactions) {
+      const document: TransactionDocument = {
+        accountId: transaction.accountId,
+        categoryId: transaction.categoryId,
+        type: transaction.type,
+        amountInCents: transaction.amountInCents.toString(),
+        description: transaction.description,
+        occurredAt: Timestamp.fromDate(transaction.occurredAt),
+        createdAt: Timestamp.fromDate(transaction.createdAt),
+        updatedAt: Timestamp.fromDate(transaction.updatedAt),
+        deletedAt: null,
+      };
+
+      batch.set(this.collection(transaction.userId).doc(transaction.id), document);
+    }
+
+    await batch.commit();
   }
 
   private toDomain(id: string, userId: string, document: TransactionDocument): Transaction {

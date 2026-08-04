@@ -7,25 +7,12 @@ import {
   SESSION_DURATION_MS,
   UnauthorizedUserError,
 } from "@/modules/auth/services/session-service";
+import { hasTrustedOrigin } from "@/utils/http-origin";
 
 const requestSchema = z.object({ idToken: z.string().min(1).max(10_000) });
 
-function isSameOrigin(request: NextRequest): boolean {
-  const origin = request.headers.get("origin");
-  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
-  const requestHost = forwardedHost || request.headers.get("host");
-
-  if (!origin || !requestHost) return false;
-
-  try {
-    return new URL(origin).host === requestHost;
-  } catch {
-    return false;
-  }
-}
-
 export async function POST(request: NextRequest) {
-  if (!isSameOrigin(request)) {
+  if (!hasTrustedOrigin(request)) {
     return NextResponse.json({ message: "Origem da requisição inválida." }, { status: 403 });
   }
 
@@ -57,7 +44,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  if (!isSameOrigin(request)) {
+  if (!hasTrustedOrigin(request)) {
     return NextResponse.json({ message: "Origem da requisição inválida." }, { status: 403 });
   }
 

@@ -4,7 +4,7 @@ Aplicação pessoal para organizar finanças e acompanhar investimentos com uma 
 
 ## Estado atual
 
-A fundação inclui dashboard responsivo, tema claro/escuro, Design Tokens, integração server-side com Firestore e autenticação Google. O painel exige uma sessão segura e aceita somente o e-mail configurado; sem registros, apresenta estados vazios em vez de dados demonstrativos.
+A fundação inclui dashboard responsivo, tema claro/escuro, Design Tokens, integração server-side com Firestore e autenticação Google. A página de entradas permite cadastrar até 20 recebimentos por vez; o dashboard calcula o fluxo mensal exclusivamente a partir desses registros.
 
 ## Requisitos
 
@@ -95,6 +95,7 @@ Como alternativa para plataformas sem arquivo de credenciais, configure `FIREBAS
 - O Admin SDK ignora Security Rules; autorização deve ser verificada no servidor antes de qualquer operação.
 - A sessão é validada pelo Firebase Admin e armazenada em cookie `HttpOnly`, `Secure` em produção e `SameSite`.
 - A autorização por e-mail é repetida no servidor; ocultar a interface no navegador não é considerado controle de acesso.
+- Entradas são sempre vinculadas ao `uid` obtido da sessão; o cliente não escolhe o proprietário dos dados.
 
 ## Deploy
 

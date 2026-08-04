@@ -22,3 +22,4 @@ users/{userId}
 - `summaries/{period}` armazena agregados mensais para dashboards eficientes.
 - Toda consulta recebe o `userId` do contexto autenticado; IDs enviados pelo cliente nunca definem o proprietário.
 - Operações que alteram saldo e lançamento serão executadas em transações ou batches do Firestore.
+- Entradas são documentos `transactions` com `type: "INCOME"`; enquanto a página de contas não estiver disponível, `accountId` permanece `null`.
