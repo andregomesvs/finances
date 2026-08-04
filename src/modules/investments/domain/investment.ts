@@ -10,7 +10,7 @@ export interface Investment {
   categoryId: InvestmentCategory;
   assetClass: InvestmentAssetClass;
   institution: string;
-  investedAmountInCents: bigint;
+  investedAmountInCents: bigint | null;
   currentAmountInCents: bigint;
   currency: InvestmentCurrency;
   appliedAt: string | null;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Investment } from "../domain/investment";
 import type { InvestmentRepository } from "../repositories/investment-repository";
-import { CreateInvestmentService, DeleteInvestmentService, InvestmentNotFoundError, UpdateInvestmentService } from "./investment-services";
+import { CreateImportedInvestmentsService, CreateInvestmentService, DeleteInvestmentService, InvestmentNotFoundError, UpdateInvestmentService } from "./investment-services";
 
 class InMemoryInvestmentRepository implements InvestmentRepository {
   records = new Map<string, Investment>();
@@ -13,6 +13,7 @@ class InMemoryInvestmentRepository implements InvestmentRepository {
     return investment?.userId === userId ? investment : null;
   }
   async save(investment: Investment) { this.records.set(investment.id, investment); }
+  async saveMany(investments: Investment[]) { for (const investment of investments) this.records.set(investment.id, investment); }
   async softDelete(id: string) { this.deletedIds.push(id); }
 }
 
@@ -65,5 +66,17 @@ describe("CRUD de investimentos", () => {
     await new DeleteInvestmentService(repository).execute(created.id, "user-123");
 
     expect(repository.deletedIds).toEqual([created.id]);
+  });
+
+  it("preserva custo desconhecido em uma posição importada pela IA", async () => {
+    const repository = new InMemoryInvestmentRepository();
+    const [created] = await new CreateImportedInvestmentsService(repository).execute("user-123", [{
+      ...cdbInput,
+      investedAmountInCents: null,
+    }]);
+
+    expect(created?.source).toBe("AI_IMPORT");
+    expect(created?.investedAmountInCents).toBeNull();
+    expect(created?.currentAmountInCents).toBe(103_500n);
   });
 });

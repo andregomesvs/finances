@@ -2,6 +2,7 @@ import { getInvestmentCategory } from "../domain/investment-category";
 import type { Investment } from "../domain/investment";
 import type { InvestmentRepository } from "../repositories/investment-repository";
 import type { InvestmentInput } from "../schemas/investment-schema";
+import type { ImportedInvestmentInput } from "../schemas/investment-import-schema";
 
 export class InvestmentNotFoundError extends Error {
   constructor() { super("Investimento não encontrado."); }
@@ -9,14 +10,14 @@ export class InvestmentNotFoundError extends Error {
 
 export interface InvestmentListItem extends Omit<Investment, "userId" | "investedAmountInCents" | "currentAmountInCents" | "averagePriceInCents" | "createdAt" | "updatedAt"> {
   category: string;
-  investedAmountInCents: string;
+  investedAmountInCents: string | null;
   currentAmountInCents: string;
   averagePriceInCents: string | null;
   totalReturnPct: number | null;
 }
 
 function toListItem(investment: Investment): InvestmentListItem {
-  const invested = Number(investment.investedAmountInCents);
+  const invested = investment.investedAmountInCents === null ? null : Number(investment.investedAmountInCents);
   return {
     id: investment.id,
     name: investment.name,
@@ -24,7 +25,7 @@ function toListItem(investment: Investment): InvestmentListItem {
     assetClass: investment.assetClass,
     category: getInvestmentCategory(investment.categoryId).label,
     institution: investment.institution,
-    investedAmountInCents: investment.investedAmountInCents.toString(),
+    investedAmountInCents: investment.investedAmountInCents?.toString() ?? null,
     currentAmountInCents: investment.currentAmountInCents.toString(),
     currency: investment.currency,
     appliedAt: investment.appliedAt,
@@ -43,7 +44,7 @@ function toListItem(investment: Investment): InvestmentListItem {
     notes: investment.notes,
     source: investment.source,
     confirmed: investment.confirmed,
-    totalReturnPct: invested > 0 ? ((Number(investment.currentAmountInCents) - invested) / invested) * 100 : null,
+    totalReturnPct: invested !== null && invested > 0 ? ((Number(investment.currentAmountInCents) - invested) / invested) * 100 : null,
   };
 }
 
@@ -52,7 +53,7 @@ export class ListInvestmentsService {
   async execute(userId: string) { return (await this.investments.list(userId)).map(toListItem); }
 }
 
-function buildInvestment(userId: string, input: InvestmentInput, existing?: Investment): Investment {
+function buildInvestment(userId: string, input: InvestmentInput, existing?: Investment, source: Investment["source"] = "MANUAL"): Investment {
   const now = new Date();
   return {
     id: existing?.id ?? crypto.randomUUID(),
@@ -62,7 +63,7 @@ function buildInvestment(userId: string, input: InvestmentInput, existing?: Inve
     investedAmountInCents: BigInt(input.investedAmountInCents),
     currentAmountInCents: BigInt(input.currentAmountInCents),
     averagePriceInCents: input.averagePriceInCents === null ? null : BigInt(input.averagePriceInCents),
-    source: existing?.source ?? "MANUAL",
+    source: existing?.source ?? source,
     confirmed: true,
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
@@ -75,6 +76,28 @@ export class CreateInvestmentService {
     const investment = buildInvestment(userId, input);
     await this.investments.save(investment);
     return investment;
+  }
+}
+
+export class CreateImportedInvestmentsService {
+  constructor(private readonly investments: InvestmentRepository) {}
+  async execute(userId: string, inputs: ImportedInvestmentInput[]) {
+    const now = new Date();
+    const investments: Investment[] = inputs.map((input) => ({
+      ...input,
+      id: crypto.randomUUID(),
+      userId,
+      assetClass: getInvestmentCategory(input.categoryId).assetClass,
+      investedAmountInCents: input.investedAmountInCents === null ? null : BigInt(input.investedAmountInCents),
+      currentAmountInCents: BigInt(input.currentAmountInCents ?? 0),
+      averagePriceInCents: input.averagePriceInCents === null ? null : BigInt(input.averagePriceInCents),
+      source: "AI_IMPORT",
+      confirmed: true,
+      createdAt: now,
+      updatedAt: now,
+    }));
+    await this.investments.saveMany(investments);
+    return investments;
   }
 }
 

@@ -11,7 +11,7 @@ interface InvestmentDocument {
   categoryId: InvestmentCategory;
   assetClass: InvestmentAssetClass;
   institution: string;
-  investedAmountInCents: string;
+  investedAmountInCents: string | null;
   currentAmountInCents: string;
   currency: InvestmentCurrency;
   appliedAt: string | null;
@@ -60,6 +60,15 @@ export class FirestoreInvestmentRepository implements InvestmentRepository {
     await this.collection(investment.userId).doc(investment.id).set(this.toDocument(investment));
   }
 
+  async saveMany(investments: Investment[]): Promise<void> {
+    if (investments.length === 0) return;
+    const batch = getFirestoreDatabase().batch();
+    for (const investment of investments) {
+      batch.set(this.collection(investment.userId).doc(investment.id), this.toDocument(investment));
+    }
+    await batch.commit();
+  }
+
   async softDelete(id: string, userId: string, deletedAt: Date): Promise<void> {
     await this.collection(userId).doc(id).update({ deletedAt: Timestamp.fromDate(deletedAt), updatedAt: Timestamp.fromDate(deletedAt) });
   }
@@ -70,7 +79,7 @@ export class FirestoreInvestmentRepository implements InvestmentRepository {
       categoryId: investment.categoryId,
       assetClass: investment.assetClass,
       institution: investment.institution,
-      investedAmountInCents: investment.investedAmountInCents.toString(),
+      investedAmountInCents: investment.investedAmountInCents?.toString() ?? null,
       currentAmountInCents: investment.currentAmountInCents.toString(),
       currency: investment.currency,
       appliedAt: investment.appliedAt,
@@ -100,7 +109,7 @@ export class FirestoreInvestmentRepository implements InvestmentRepository {
       ...document,
       id,
       userId,
-      investedAmountInCents: BigInt(document.investedAmountInCents),
+      investedAmountInCents: document.investedAmountInCents === null ? null : BigInt(document.investedAmountInCents),
       currentAmountInCents: BigInt(document.currentAmountInCents),
       averagePriceInCents: document.averagePriceInCents ? BigInt(document.averagePriceInCents) : null,
       createdAt: document.createdAt.toDate(),

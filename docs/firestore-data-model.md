@@ -30,3 +30,5 @@ users/{userId}
 - Gastos recorrentes ficam em `fixedExpenses`, com `dueDay`, `startMonth` e `endMonth`. Quando `endMonth` é nulo, a recorrência permanece ativa até ser encerrada ou excluída.
 - Exclusões são lógicas por meio de `deletedAt`, preservando rastreabilidade e evitando perda irreversível de dados.
 - Investimentos confirmados ficam em `investments`. Valores monetários permanecem em centavos como string; `source` diferencia cadastros manuais de importações por IA e `confirmed` impede que extrações duvidosas sejam tratadas como patrimônio validado.
+- PDFs de investimentos não são armazenados. A extração do Gemini é temporária e somente as posições selecionadas na conferência são gravadas em batch.
+- Quando o relatório não informa o custo aplicado, `investedAmountInCents` permanece nulo. Isso evita fabricar rentabilidade e permite completar o dado posteriormente pelo CRUD.

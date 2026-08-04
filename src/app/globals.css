@@ -242,6 +242,48 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
 .dialog-copy { text-align: center; }
 .dialog-copy h2 { margin: 18px 0 0; }
 .dialog-copy p { margin: 9px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.muted-value { color: var(--muted); font-size: 11px; }
+.import-progress { position: fixed; z-index: 130; inset: 0; display: grid; place-items: center; padding: 24px; background: rgb(5 12 8 / 68%); backdrop-filter: blur(7px); }
+.import-progress > div { width: min(100%, 410px); display: grid; justify-items: center; padding: 32px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); text-align: center; box-shadow: 0 28px 90px rgb(0 0 0 / 30%); }
+.import-progress svg { color: var(--brand); }
+.import-progress strong { margin-top: 17px; font-size: 17px; }
+.import-progress p { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.import-backdrop { align-items: stretch; padding: 18px; }
+.import-review { width: min(100%, 1120px); max-height: calc(100vh - 36px); display: flex; flex-direction: column; margin: auto; overflow: hidden; border: 1px solid var(--line); border-radius: 22px; background: var(--bg); box-shadow: 0 28px 100px rgb(0 0 0 / 38%); }
+.import-review-header { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 20px 22px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.import-review-header h2 { margin: 0; font-size: 18px; letter-spacing: -.025em; }
+.import-review-header p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+.import-file-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; background: var(--brand-soft); color: var(--brand-strong); }
+.import-summary { padding: 15px 22px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--brand-soft) 45%, var(--surface)); }
+.import-summary strong { font-size: 12px; }
+.import-summary p { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.import-warnings { display: flex; gap: 11px; margin: 14px 22px 0; padding: 13px; border: 1px solid color-mix(in srgb, var(--warning) 35%, var(--line)); border-radius: 12px; background: color-mix(in srgb, var(--warning) 8%, var(--surface)); color: var(--warning); }
+.import-warnings svg { flex: 0 0 auto; }
+.import-warnings strong { font-size: 12px; }
+.import-warnings p { margin: 4px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.import-error { margin: 14px 22px 0; }
+.import-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px 10px; color: var(--muted); font-size: 11px; }
+.import-positions { display: grid; gap: 10px; padding: 0 22px 20px; overflow-y: auto; }
+.import-position { padding: 15px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); opacity: .65; }
+.import-position.selected { border-color: color-mix(in srgb, var(--brand) 28%, var(--line)); opacity: 1; }
+.import-position-head { display: grid; grid-template-columns: auto 1fr auto; gap: 11px; align-items: center; }
+.import-position-head strong, .import-position-head small { display: block; }
+.import-position-head strong { font-size: 13px; }
+.import-position-head small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+.import-checkbox { position: relative; display: block; width: 22px; height: 22px; }
+.import-checkbox input { position: absolute; opacity: 0; pointer-events: none; }
+.import-checkbox span { width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-soft); color: transparent; cursor: pointer; }
+.import-checkbox input:checked + span { border-color: var(--brand); background: var(--brand); color: white; }
+.confidence-badge { display: inline-flex; padding: 5px 8px; border-radius: 99px; background: color-mix(in srgb, var(--positive) 10%, var(--surface)); color: var(--positive); font-size: 9px; font-weight: 750; }
+.confidence-badge.review { background: color-mix(in srgb, var(--warning) 12%, var(--surface)); color: var(--warning); }
+.import-position-grid { display: grid; grid-template-columns: 2fr 1.2fr 1.2fr repeat(4, 1fr); gap: 10px; margin-top: 13px; }
+.import-position-grid .field-wide { grid-column: auto; }
+.uncertainty-list { margin: 11px 0 0 33px; padding: 0; color: var(--warning); font-size: 10px; line-height: 1.5; }
+.import-review-footer { display: flex; justify-content: space-between; gap: 18px; align-items: center; padding: 15px 22px; border-top: 1px solid var(--line); background: var(--surface); }
+.import-review-footer p { max-width: 480px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.import-review-footer > div { display: flex; gap: 9px; }
+.import-floating-error { position: fixed; z-index: 150; right: 20px; bottom: 20px; max-width: 420px; display: flex; gap: 12px; align-items: center; padding: 13px 14px; border: 1px solid color-mix(in srgb, var(--negative) 35%, var(--line)); border-radius: 12px; background: var(--surface); color: var(--negative); box-shadow: var(--shadow-md); font-size: 12px; }
+.import-floating-error button { margin-left: auto; border: 0; background: transparent; color: inherit; cursor: pointer; }
 
 @media (max-width: 980px) {
   .app-shell { grid-template-columns: 78px 1fr; }
@@ -251,6 +293,7 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
   .nav-item { justify-content: center; padding: 0; }
   .profile { justify-content: center; padding: 8px; }
   .investment-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .import-position-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .logout-button { display: none; }
   .sidebar-footer { inset-inline: 12px; }
 }
@@ -279,6 +322,15 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
   .topbar-actions { width: 100%; flex-wrap: wrap; }
   .investment-form-grid { grid-template-columns: 1fr; }
   .investment-form-grid .field-wide, .investment-form-grid .field-full { grid-column: auto; }
+  .import-backdrop { padding: 0; }
+  .import-review { max-height: 100vh; min-height: 100vh; border-radius: 0; }
+  .import-review-header, .import-summary, .import-positions, .import-review-footer { padding-inline: 14px; }
+  .import-warnings, .import-error { margin-inline: 14px; }
+  .import-toolbar { padding-inline: 14px; }
+  .import-position-grid { grid-template-columns: 1fr 1fr; }
+  .import-position-grid .field-wide { grid-column: 1 / -1; }
+  .import-review-footer { align-items: stretch; flex-direction: column; }
+  .import-review-footer > div { display: grid; grid-template-columns: 1fr; }
   .entry-form-card { padding: 16px; }
   .entry-row { grid-template-columns: 1fr; padding: 15px; }
   .field-description { grid-column: auto; }

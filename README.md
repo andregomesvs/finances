@@ -15,14 +15,23 @@ A fundação inclui dashboard responsivo, tema claro/escuro, Design Tokens, inte
 - Dashboard consolidando entradas, parcelas do cartão e gastos fixos ativos no mês.
 - Investimentos com formulário adaptável por categoria, valores, risco, liquidez, tributação e CRUD completo.
 - Patrimônio manual consolidado em BRL sem converter silenciosamente posições em outras moedas.
+- Importação de PDFs com extração estruturada pelo Gemini e conferência antes da gravação.
 
 ### Evolução planejada do módulo de investimentos
 
 1. Fundação e CRUD manual de investimentos (concluído).
-2. Upload seguro de PDFs e extração estruturada com Gemini.
-3. Tela de conferência das informações extraídas antes da gravação.
+2. Upload seguro de PDFs e extração estruturada com Gemini (concluído).
+3. Tela de conferência das informações extraídas antes da gravação (concluído).
 4. Dashboard patrimonial, histórico, distribuição e comparativos.
 5. Perfil, simulações, alertas e análises educativas sem caráter de recomendação profissional.
+
+### Privacidade na importação
+
+- A chave do Gemini permanece exclusivamente no backend.
+- O PDF é validado, processado em memória e enviado ao Gemini; o arquivo original não é persistido pelo aplicativo.
+- A resposta da IA passa por schema e validação de negócio.
+- Nenhuma posição é salva antes da conferência do usuário.
+- Informações ausentes permanecem como desconhecidas em vez de serem estimadas silenciosamente.
 
 ## Requisitos
 

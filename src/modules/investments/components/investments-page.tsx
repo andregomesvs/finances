@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BrainCircuit, LoaderCircle, Pencil, Plus, Trash2, TrendingUp, Upload, X } from "lucide-react";
+import { BrainCircuit, LoaderCircle, Pencil, Plus, Trash2, TrendingUp, X } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { parseCurrencyToCents } from "@/utils/currency-input";
 import { investmentCategories, marketInvestmentCategories, yieldInvestmentCategories, type InvestmentCategory } from "../domain/investment-category";
 import type { InvestmentCurrency, InvestmentRiskLevel } from "../domain/investment";
 import type { InvestmentListItem } from "../services/investment-services";
+import { InvestmentImportPanel } from "./investment-import-panel";
 
 interface InvestmentDraft {
   name: string;
@@ -119,10 +120,11 @@ export function InvestmentsPage({ initialInvestments, startWithForm }: { initial
   }, [deleting, isDeleting]);
 
   const brlInvestments = useMemo(() => initialInvestments.filter((item) => item.currency === "BRL"), [initialInvestments]);
-  const totalInvested = brlInvestments.reduce((sum, item) => sum + Number(item.investedAmountInCents), 0);
+  const totalInvested = brlInvestments.reduce((sum, item) => sum + Number(item.investedAmountInCents ?? 0), 0);
   const totalCurrent = brlInvestments.reduce((sum, item) => sum + Number(item.currentAmountInCents), 0);
   const totalResult = totalCurrent - totalInvested;
   const foreignCount = initialInvestments.length - brlInvestments.length;
+  const missingCostCount = initialInvestments.filter((item) => item.investedAmountInCents === null).length;
   const showMarketFields = marketInvestmentCategories.includes(draft.categoryId);
   const showYieldFields = yieldInvestmentCategories.includes(draft.categoryId);
 
@@ -241,7 +243,7 @@ export function InvestmentsPage({ initialInvestments, startWithForm }: { initial
         <div><span className="eyebrow">Patrimônio</span><h1>Investimentos</h1><p>Organize sua carteira e acompanhe cada posição.</p></div>
         <div className="topbar-actions">
           <ThemeToggle />
-          <button className="secondary-button" type="button" disabled title="Disponível na próxima etapa"><Upload size={17} /> Importar documento</button>
+          <InvestmentImportPanel onImported={(count) => { setSuccess(`${count} ${count === 1 ? "investimento importado" : "investimentos importados"} com sucesso.`); router.refresh(); }} />
           <button className="primary-button" type="button" onClick={openNew}><Plus size={17} /> Novo investimento</button>
         </div>
       </div>
@@ -290,7 +292,7 @@ export function InvestmentsPage({ initialInvestments, startWithForm }: { initial
 
       <section className="summary-grid investment-summary" aria-label="Resumo do patrimônio">
         <article className="summary-card"><div className="metric-icon positive"><TrendingUp size={18} /></div><span>Patrimônio em BRL</span><strong>{moneyFromCents(String(totalCurrent), "BRL")}</strong><small>{initialInvestments.length} {initialInvestments.length === 1 ? "posição cadastrada" : "posições cadastradas"}</small></article>
-        <article className="summary-card"><span>Valor aplicado em BRL</span><strong>{moneyFromCents(String(totalInvested), "BRL")}</strong><small>{foreignCount ? `${foreignCount} posição(ões) em moeda estrangeira não convertida(s)` : "Somente posições confirmadas"}</small></article>
+        <article className="summary-card"><span>Valor aplicado em BRL</span><strong>{moneyFromCents(String(totalInvested), "BRL")}</strong><small>{missingCostCount ? `${missingCostCount} posição(ões) sem custo informado` : foreignCount ? `${foreignCount} posição(ões) em moeda estrangeira não convertida(s)` : "Somente posições confirmadas"}</small></article>
         <article className="summary-card"><span>Resultado em BRL</span><strong className={totalResult >= 0 ? "positive-text" : "negative-text"}>{totalResult >= 0 ? "+ " : "− "}{moneyFromCents(String(Math.abs(totalResult)), "BRL")}</strong><small>{totalInvested > 0 ? `${((totalResult / totalInvested) * 100).toFixed(2).replace(".", ",")}% sobre o valor aplicado` : "Cadastre valores para calcular"}</small></article>
       </section>
 
@@ -299,7 +301,7 @@ export function InvestmentsPage({ initialInvestments, startWithForm }: { initial
         {initialInvestments.length === 0 ? (
           <div className="investment-empty"><BrainCircuit size={34} /><h3>Sua carteira começa aqui</h3><p>Cadastre o primeiro investimento manualmente. Na próxima etapa, o Gemini fará esse preenchimento a partir dos seus documentos.</p><button className="primary-button" type="button" onClick={openNew}><Plus size={17} /> Cadastrar investimento</button></div>
         ) : (
-          <div className="entries-table-wrap"><table className="entries-table investment-table"><thead><tr><th>Investimento</th><th>Instituição</th><th>Risco</th><th>Aplicado</th><th>Valor atual</th><th>Resultado</th><th><span className="sr-only">Ações</span></th></tr></thead><tbody>{initialInvestments.map((investment) => <tr key={investment.id}><td><strong>{investment.ticker || investment.name}</strong><span>{investment.category}</span></td><td>{investment.institution}</td><td><span className={`risk-badge ${investment.riskLevel.toLowerCase()}`}>{riskLabel(investment.riskLevel)}</span></td><td>{moneyFromCents(investment.investedAmountInCents, investment.currency)}</td><td><strong>{moneyFromCents(investment.currentAmountInCents, investment.currency)}</strong></td><td><span className={(investment.totalReturnPct ?? 0) >= 0 ? "positive-text" : "negative-text"}>{investment.totalReturnPct === null ? "—" : `${investment.totalReturnPct >= 0 ? "+" : ""}${investment.totalReturnPct.toFixed(2).replace(".", ",")}%`}</span></td><td><div className="row-actions"><button className="icon-button subtle" type="button" onClick={() => openEdit(investment)} aria-label={`Editar ${investment.name}`}><Pencil size={15} /></button><button className="icon-button subtle danger" type="button" onClick={() => setDeleting(investment)} aria-label={`Apagar ${investment.name}`}><Trash2 size={15} /></button></div></td></tr>)}</tbody></table></div>
+          <div className="entries-table-wrap"><table className="entries-table investment-table"><thead><tr><th>Investimento</th><th>Instituição</th><th>Risco</th><th>Aplicado</th><th>Valor atual</th><th>Resultado</th><th><span className="sr-only">Ações</span></th></tr></thead><tbody>{initialInvestments.map((investment) => <tr key={investment.id}><td><strong>{investment.ticker || investment.name}</strong><span>{investment.category}</span></td><td>{investment.institution}</td><td><span className={`risk-badge ${investment.riskLevel.toLowerCase()}`}>{riskLabel(investment.riskLevel)}</span></td><td>{investment.investedAmountInCents === null ? <span className="muted-value">Não informado</span> : moneyFromCents(investment.investedAmountInCents, investment.currency)}</td><td><strong>{moneyFromCents(investment.currentAmountInCents, investment.currency)}</strong></td><td><span className={(investment.totalReturnPct ?? 0) >= 0 ? "positive-text" : "negative-text"}>{investment.totalReturnPct === null ? "—" : `${investment.totalReturnPct >= 0 ? "+" : ""}${investment.totalReturnPct.toFixed(2).replace(".", ",")}%`}</span></td><td><div className="row-actions"><button className="icon-button subtle" type="button" onClick={() => openEdit(investment)} aria-label={`Editar ${investment.name}`}><Pencil size={15} /></button><button className="icon-button subtle danger" type="button" onClick={() => setDeleting(investment)} aria-label={`Apagar ${investment.name}`}><Trash2 size={15} /></button></div></td></tr>)}</tbody></table></div>
         )}
       </section>
 
