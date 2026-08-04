@@ -9,6 +9,7 @@ class InMemoryTransactionRepository implements TransactionRepository {
   async findById() { return null; }
   async listByPeriod() { return []; }
   async listRecent() { return []; }
+  async listLatestCreated() { return []; }
   async save(transaction: Transaction) { this.saved.push(transaction); }
   async saveMany(transactions: Transaction[]) { this.saved.push(...transactions); }
   async softDelete() {}

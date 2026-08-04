@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -6,12 +5,12 @@ import {
   Bell,
   BriefcaseBusiness,
   CircleDollarSign,
-  Plus,
   ReceiptText,
   ShoppingBag,
   TrendingUp,
 } from "lucide-react";
 import { AuthenticatedShell } from "@/components/authenticated-shell";
+import { NewTransactionMenu } from "@/components/new-transaction-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { AuthenticatedUser } from "@/modules/auth/domain/authenticated-user";
 import type { DashboardOverview } from "../services/get-dashboard-overview";
@@ -51,7 +50,7 @@ export function Dashboard({ user, overview }: { user: AuthenticatedUser; overvie
         <div className="actions">
           <ThemeToggle />
           <button className="icon-button" type="button" aria-label="Notificações"><Bell size={17} aria-hidden="true" /></button>
-          <Link className="primary-button" href="/entradas?nova=1"><Plus size={17} aria-hidden="true" /><span>Nova transação</span></Link>
+          <NewTransactionMenu />
         </div>
       </header>
 

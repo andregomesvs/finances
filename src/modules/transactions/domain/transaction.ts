@@ -7,7 +7,12 @@ export interface Transaction {
   categoryId: string | null;
   type: TransactionType;
   amountInCents: bigint;
+  originalAmountInCents: bigint | null;
   description: string;
+  creditCardName: string | null;
+  installmentGroupId: string | null;
+  installmentNumber: number | null;
+  installmentCount: number | null;
   occurredAt: Date;
   createdAt: Date;
   updatedAt: Date;

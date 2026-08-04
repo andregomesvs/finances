@@ -10,7 +10,12 @@ interface TransactionDocument {
   categoryId: string | null;
   type: Transaction["type"];
   amountInCents: string;
+  originalAmountInCents?: string | null;
   description: string;
+  creditCardName?: string | null;
+  installmentGroupId?: string | null;
+  installmentNumber?: number | null;
+  installmentCount?: number | null;
   occurredAt: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -60,6 +65,18 @@ export class FirestoreTransactionRepository implements TransactionRepository {
       .map((document) => this.toDomain(document.id, userId, document.data));
   }
 
+  async listLatestCreated(userId: string, limit: number): Promise<Transaction[]> {
+    const snapshot = await this.collection(userId)
+      .orderBy("createdAt", "desc")
+      .limit(Math.min(Math.max(limit, 1), 100))
+      .get();
+
+    return snapshot.docs
+      .map((document) => ({ id: document.id, data: document.data() as TransactionDocument }))
+      .filter((document) => !document.data.deletedAt)
+      .map((document) => this.toDomain(document.id, userId, document.data));
+  }
+
   async save(transaction: Transaction): Promise<void> {
     await this.saveMany([transaction]);
   }
@@ -75,7 +92,12 @@ export class FirestoreTransactionRepository implements TransactionRepository {
         categoryId: transaction.categoryId,
         type: transaction.type,
         amountInCents: transaction.amountInCents.toString(),
+        originalAmountInCents: transaction.originalAmountInCents?.toString() ?? null,
         description: transaction.description,
+        creditCardName: transaction.creditCardName,
+        installmentGroupId: transaction.installmentGroupId,
+        installmentNumber: transaction.installmentNumber,
+        installmentCount: transaction.installmentCount,
         occurredAt: Timestamp.fromDate(transaction.occurredAt),
         createdAt: Timestamp.fromDate(transaction.createdAt),
         updatedAt: Timestamp.fromDate(transaction.updatedAt),
@@ -103,7 +125,12 @@ export class FirestoreTransactionRepository implements TransactionRepository {
       categoryId: document.categoryId,
       type: document.type,
       amountInCents: BigInt(document.amountInCents),
+      originalAmountInCents: document.originalAmountInCents ? BigInt(document.originalAmountInCents) : null,
       description: document.description,
+      creditCardName: document.creditCardName ?? null,
+      installmentGroupId: document.installmentGroupId ?? null,
+      installmentNumber: document.installmentNumber ?? null,
+      installmentCount: document.installmentCount ?? null,
       occurredAt: document.occurredAt.toDate(),
       createdAt: document.createdAt.toDate(),
       updatedAt: document.updatedAt.toDate(),

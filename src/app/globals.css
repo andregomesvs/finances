@@ -72,6 +72,16 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
 .primary-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 16px; background: var(--brand); color: white; border-color: var(--brand); font-weight: 650; text-decoration: none; }
 .primary-button:hover { background: var(--brand-strong); }
 .primary-button:disabled { cursor: not-allowed; opacity: .58; }
+.transaction-menu { position: relative; }
+.transaction-menu-popover { position: absolute; z-index: 40; top: calc(100% + 9px); right: 0; width: min(330px, calc(100vw - 32px)); padding: 7px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); box-shadow: 0 20px 60px rgb(10 25 17 / 20%); }
+.transaction-menu-popover a { display: flex; align-items: center; gap: 12px; padding: 11px; border-radius: 11px; color: var(--text); text-decoration: none; }
+.transaction-menu-popover a:hover { background: var(--surface-soft); }
+.transaction-menu-popover strong, .transaction-menu-popover small { display: block; }
+.transaction-menu-popover strong { font-size: 13px; }
+.transaction-menu-popover small { margin-top: 3px; color: var(--muted); font-size: 11px; }
+.menu-icon { width: 36px; height: 36px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 11px; }
+.menu-icon.income { background: var(--brand-soft); color: var(--positive); }
+.menu-icon.expense { background: color-mix(in srgb, var(--negative) 11%, var(--surface)); color: var(--negative); }
 .secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 14px; background: var(--surface); color: var(--brand-strong); font-size: 13px; font-weight: 650; }
 .secondary-button:hover { background: var(--surface-soft); }
 .secondary-button:disabled { cursor: not-allowed; opacity: .5; }
@@ -80,6 +90,7 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
 .metric { padding: 21px; }
 .metric-head { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 13px; }
 .metric-icon { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: var(--surface-soft); color: var(--brand-strong); }
+.metric-icon.expense-icon { color: var(--negative); }
 .metric-value { display: block; margin-top: 18px; font-size: clamp(23px, 2.3vw, 30px); letter-spacing: -0.04em; }
 .metric-note { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
 .positive { color: var(--positive); }
@@ -178,6 +189,17 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
 .row-actions button.danger:hover { border-color: color-mix(in srgb, var(--negative) 35%, var(--line)); color: var(--negative); }
 .category-chip { display: inline-flex; padding: 5px 9px; border-radius: 99px; background: var(--brand-soft); color: var(--brand-strong); font-size: 11px; font-weight: 650; }
 .entries-empty { min-height: 170px; }
+.expense-form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.expense-form-grid .field-description { grid-column: span 2; }
+.installment-preview { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 14px; border: 1px solid color-mix(in srgb, var(--brand) 25%, var(--line)); border-radius: 12px; background: color-mix(in srgb, var(--brand-soft) 55%, var(--surface)); }
+.preview-icon { width: 38px; height: 38px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 11px; background: var(--surface); color: var(--brand-strong); }
+.installment-preview strong { font-size: 13px; }
+.installment-preview p { margin: 4px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.form-helper { color: var(--muted); font-size: 11px; }
+.expense-chip { background: color-mix(in srgb, var(--negative) 9%, var(--surface)); color: var(--negative); }
+.installment-chip { display: inline-flex; min-width: 42px; justify-content: center; padding: 5px 8px; border-radius: 8px; background: var(--surface-soft); color: var(--text); font-size: 11px; font-weight: 700; }
+.future-label { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .05em; }
+.negative { color: var(--negative); }
 .dialog-backdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 20px; background: rgb(5 12 8 / 62%); backdrop-filter: blur(5px); }
 .dialog-card { width: min(100%, 570px); max-height: calc(100vh - 40px); overflow-y: auto; padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); box-shadow: 0 28px 90px rgb(0 0 0 / 30%); }
 .dialog-card .section-head { margin-bottom: 22px; }
@@ -210,8 +232,8 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
   .primary-button span { display: none; }
   .primary-button { width: 42px; padding: 0; justify-content: center; }
   .summary-grid, .content-grid, .bottom-grid { grid-template-columns: 1fr; }
-  .mobile-nav { position: fixed; z-index: 20; display: grid; grid-template-columns: repeat(2, 1fr); inset: auto 0 0; padding: 8px 8px max(8px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(14px); }
-  .mobile-nav a { min-height: 48px; display: grid; place-items: center; color: var(--muted); border-radius: 10px; }
+  .mobile-nav { position: fixed; z-index: 20; display: flex; inset: auto 0 0; padding: 8px 8px max(8px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(14px); }
+  .mobile-nav a { min-height: 48px; display: grid; place-items: center; flex: 1; color: var(--muted); border-radius: 10px; }
   .mobile-nav a.active { color: var(--brand-strong); background: var(--brand-soft); }
 }
 
@@ -232,6 +254,9 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
   .dialog-fields .field:first-child { grid-column: auto; }
   .dialog-actions { flex-direction: column-reverse; }
   .dialog-actions > button { width: 100%; }
+  .expense-form-grid { grid-template-columns: 1fr; }
+  .expense-form-grid .field-description { grid-column: auto; }
+  .expense-actions { align-items: stretch; }
 }
 
 @media (prefers-reduced-motion: reduce) {

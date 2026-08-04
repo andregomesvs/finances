@@ -4,7 +4,7 @@ Aplicação pessoal para organizar finanças e acompanhar investimentos com uma 
 
 ## Estado atual
 
-A fundação inclui dashboard responsivo, tema claro/escuro, Design Tokens, integração server-side com Firestore e autenticação Google. A página de entradas permite cadastrar até 20 recebimentos por vez, editar e apagar lançamentos; o dashboard calcula o fluxo mensal exclusivamente a partir dos registros ativos.
+A fundação inclui dashboard responsivo, tema claro/escuro, Design Tokens, integração server-side com Firestore e autenticação Google. Entradas podem ser cadastradas, editadas e apagadas; compras no cartão geram automaticamente parcelas futuras e alimentam o fluxo mensal.
 
 ## Requisitos
 

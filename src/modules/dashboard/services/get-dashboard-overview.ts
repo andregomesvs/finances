@@ -22,9 +22,9 @@ export class GetDashboardOverviewService {
     const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     const periodStart = new Date(now.getFullYear(), now.getMonth() - 5, 1);
-    const [periodTransactions, recentTransactions] = await Promise.all([
+    const [periodTransactions, latestTransactions] = await Promise.all([
       this.transactions.listByPeriod(userId, periodStart, nextMonthStart),
-      this.transactions.listRecent(userId, 3),
+      this.transactions.listLatestCreated(userId, 30),
     ]);
 
     let incomeThisMonth = 0n;
@@ -59,12 +59,19 @@ export class GetDashboardOverviewService {
         incomeInCents: month.income.toString(),
         expenseInCents: month.expense.toString(),
       })),
-      recent: recentTransactions.map((transaction) => ({
+      recent: latestTransactions.filter((transaction, index, transactions) => {
+        if (!transaction.installmentGroupId) return true;
+        return transactions.findIndex((candidate) => candidate.installmentGroupId === transaction.installmentGroupId) === index;
+      }).slice(0, 3).map((transaction) => ({
         id: transaction.id,
         description: transaction.description,
-        meta: `${transaction.type === "INCOME" ? getIncomeCategoryLabel(transaction.categoryId) : "Movimentação"} · ${new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(transaction.occurredAt)}`,
+        meta: transaction.type === "INCOME"
+          ? `${getIncomeCategoryLabel(transaction.categoryId)} · ${new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(transaction.occurredAt)}`
+          : `${transaction.creditCardName ?? "Cartão"} · ${transaction.installmentCount ?? 1}x`,
         type: transaction.type,
-        amountInCents: transaction.amountInCents.toString(),
+        amountInCents: (transaction.type === "EXPENSE" && transaction.originalAmountInCents
+          ? transaction.originalAmountInCents
+          : transaction.amountInCents).toString(),
       })),
     };
   }

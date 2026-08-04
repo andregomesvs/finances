@@ -13,7 +13,12 @@ class InMemoryTransactionRepository implements TransactionRepository {
     categoryId: "salary",
     type: "INCOME",
     amountInCents: 590n,
+    originalAmountInCents: null,
     description: "Salário GFT",
+    creditCardName: null,
+    installmentGroupId: null,
+    installmentNumber: null,
+    installmentCount: null,
     occurredAt: new Date("2026-08-04T12:00:00.000Z"),
     createdAt: new Date("2026-08-04T12:00:00.000Z"),
     updatedAt: new Date("2026-08-04T12:00:00.000Z"),
@@ -24,6 +29,7 @@ class InMemoryTransactionRepository implements TransactionRepository {
   }
   async listByPeriod() { return []; }
   async listRecent() { return []; }
+  async listLatestCreated() { return []; }
   async save(transaction: Transaction) { this.transaction = transaction; }
   async saveMany() {}
   async softDelete(id: string) { this.deletedId = id; }

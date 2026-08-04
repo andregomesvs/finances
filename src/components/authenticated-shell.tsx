@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowDownToLine,
+  CreditCard,
   Goal,
   Home,
   ReceiptText,
@@ -15,6 +16,7 @@ import { LogoutButton } from "@/modules/auth/components/logout-button";
 const navigation = [
   { label: "Visão geral", icon: Home, href: "/" },
   { label: "Entradas", icon: ArrowDownToLine, href: "/entradas" },
+  { label: "Saídas", icon: CreditCard, href: "/saidas" },
   { label: "Transações", icon: ReceiptText },
   { label: "Contas", icon: WalletCards },
   { label: "Planejamento", icon: Goal },

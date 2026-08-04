@@ -23,3 +23,4 @@ users/{userId}
 - Toda consulta recebe o `userId` do contexto autenticado; IDs enviados pelo cliente nunca definem o proprietário.
 - Operações que alteram saldo e lançamento serão executadas em transações ou batches do Firestore.
 - Entradas são documentos `transactions` com `type: "INCOME"`; enquanto a página de contas não estiver disponível, `accountId` permanece `null`.
+- Compras no cartão geram um documento `transactions` por parcela com `type: "EXPENSE"`, agrupados por `installmentGroupId`; o valor original permanece em `originalAmountInCents`.
