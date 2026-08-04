@@ -5,6 +5,7 @@ users/{userId}
   accounts/{accountId}
   categories/{categoryId}
   transactions/{transactionId}
+  fixedExpenses/{fixedExpenseId}
   budgets/{budgetId}
   goals/{goalId}
   assets/{assetId}
@@ -24,3 +25,6 @@ users/{userId}
 - Operações que alteram saldo e lançamento serão executadas em transações ou batches do Firestore.
 - Entradas são documentos `transactions` com `type: "INCOME"`; enquanto a página de contas não estiver disponível, `accountId` permanece `null`.
 - Compras no cartão geram um documento `transactions` por parcela com `type: "EXPENSE"`, agrupados por `installmentGroupId`; o valor original permanece em `originalAmountInCents`.
+- A edição ou exclusão de uma compra no cartão atua sobre todo o grupo de parcelas. A substituição do cronograma é feita em batch para não deixar parcelas parcialmente atualizadas.
+- Gastos recorrentes ficam em `fixedExpenses`, com `dueDay`, `startMonth` e `endMonth`. Quando `endMonth` é nulo, a recorrência permanece ativa até ser encerrada ou excluída.
+- Exclusões são lógicas por meio de `deletedAt`, preservando rastreabilidade e evitando perda irreversível de dados.

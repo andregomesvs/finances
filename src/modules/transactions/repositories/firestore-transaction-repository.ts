@@ -77,6 +77,11 @@ export class FirestoreTransactionRepository implements TransactionRepository {
       .map((document) => this.toDomain(document.id, userId, document.data));
   }
 
+  async findByInstallmentGroup(userId: string, groupId: string): Promise<Transaction[]> {
+    const snapshot = await this.collection(userId).where("installmentGroupId", "==", groupId).get();
+    return snapshot.docs.map((document) => ({ id: document.id, data: document.data() as TransactionDocument })).filter((document) => !document.data.deletedAt).map((document) => this.toDomain(document.id, userId, document.data));
+  }
+
   async save(transaction: Transaction): Promise<void> {
     await this.saveMany([transaction]);
   }
@@ -87,24 +92,7 @@ export class FirestoreTransactionRepository implements TransactionRepository {
     const batch = getFirestoreDatabase().batch();
 
     for (const transaction of transactions) {
-      const document: TransactionDocument = {
-        accountId: transaction.accountId,
-        categoryId: transaction.categoryId,
-        type: transaction.type,
-        amountInCents: transaction.amountInCents.toString(),
-        originalAmountInCents: transaction.originalAmountInCents?.toString() ?? null,
-        description: transaction.description,
-        creditCardName: transaction.creditCardName,
-        installmentGroupId: transaction.installmentGroupId,
-        installmentNumber: transaction.installmentNumber,
-        installmentCount: transaction.installmentCount,
-        occurredAt: Timestamp.fromDate(transaction.occurredAt),
-        createdAt: Timestamp.fromDate(transaction.createdAt),
-        updatedAt: Timestamp.fromDate(transaction.updatedAt),
-        deletedAt: null,
-      };
-
-      batch.set(this.collection(transaction.userId).doc(transaction.id), document);
+      batch.set(this.collection(transaction.userId).doc(transaction.id), this.toDocument(transaction));
     }
 
     await batch.commit();
@@ -115,6 +103,24 @@ export class FirestoreTransactionRepository implements TransactionRepository {
       deletedAt: Timestamp.fromDate(deletedAt),
       updatedAt: Timestamp.fromDate(deletedAt),
     });
+  }
+
+  async softDeleteMany(ids: string[], userId: string, deletedAt: Date): Promise<void> {
+    if (ids.length === 0) return;
+    const batch = getFirestoreDatabase().batch();
+    for (const id of ids) batch.update(this.collection(userId).doc(id), { deletedAt: Timestamp.fromDate(deletedAt), updatedAt: Timestamp.fromDate(deletedAt) });
+    await batch.commit();
+  }
+
+  async replaceMany(idsToDelete: string[], replacements: Transaction[], deletedAt: Date): Promise<void> {
+    const batch = getFirestoreDatabase().batch();
+    const userId = replacements[0]?.userId;
+    if (!userId) return;
+    for (const id of idsToDelete) batch.update(this.collection(userId).doc(id), { deletedAt: Timestamp.fromDate(deletedAt), updatedAt: Timestamp.fromDate(deletedAt) });
+    for (const transaction of replacements) {
+      batch.set(this.collection(userId).doc(transaction.id), this.toDocument(transaction));
+    }
+    await batch.commit();
   }
 
   private toDomain(id: string, userId: string, document: TransactionDocument): Transaction {
@@ -135,5 +141,9 @@ export class FirestoreTransactionRepository implements TransactionRepository {
       createdAt: document.createdAt.toDate(),
       updatedAt: document.updatedAt.toDate(),
     };
+  }
+
+  private toDocument(transaction: Transaction): TransactionDocument {
+    return { accountId: transaction.accountId, categoryId: transaction.categoryId, type: transaction.type, amountInCents: transaction.amountInCents.toString(), originalAmountInCents: transaction.originalAmountInCents?.toString() ?? null, description: transaction.description, creditCardName: transaction.creditCardName, installmentGroupId: transaction.installmentGroupId, installmentNumber: transaction.installmentNumber, installmentCount: transaction.installmentCount, occurredAt: Timestamp.fromDate(transaction.occurredAt), createdAt: Timestamp.fromDate(transaction.createdAt), updatedAt: Timestamp.fromDate(transaction.updatedAt), deletedAt: null };
   }
 }

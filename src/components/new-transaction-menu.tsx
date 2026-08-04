@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowDownToLine, ArrowUpFromLine, ChevronDown, Plus } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, ChevronDown, Repeat2, Plus } from "lucide-react";
 
 export function NewTransactionMenu() {
   const [open, setOpen] = useState(false);
@@ -32,7 +32,8 @@ export function NewTransactionMenu() {
       {open && (
         <div className="transaction-menu-popover" role="menu">
           <Link href="/entradas?nova=1" role="menuitem" onClick={() => setOpen(false)}><span className="menu-icon income"><ArrowDownToLine size={17} /></span><span><strong>Nova entrada</strong><small>Salário e outros recebimentos</small></span></Link>
-          <Link href="/saidas?nova=1" role="menuitem" onClick={() => setOpen(false)}><span className="menu-icon expense"><ArrowUpFromLine size={17} /></span><span><strong>Saída no cartão</strong><small>Compra à vista ou parcelada</small></span></Link>
+          <Link href="/saidas?nova=cartao" role="menuitem" onClick={() => setOpen(false)}><span className="menu-icon expense"><ArrowUpFromLine size={17} /></span><span><strong>Saída no cartão</strong><small>Compra à vista ou parcelada</small></span></Link>
+          <Link href="/saidas?nova=fixo" role="menuitem" onClick={() => setOpen(false)}><span className="menu-icon fixed"><Repeat2 size={17} /></span><span><strong>Gasto fixo</strong><small>Conta ou compromisso mensal</small></span></Link>
         </div>
       )}
     </div>

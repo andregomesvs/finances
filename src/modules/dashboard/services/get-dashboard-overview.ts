@@ -1,5 +1,7 @@
 import { getIncomeCategoryLabel } from "@/modules/incomes/domain/income-category";
 import type { TransactionRepository } from "@/modules/transactions/repositories/transaction-repository";
+import type { FixedExpenseRepository } from "@/modules/fixed-expenses/repositories/fixed-expense-repository";
+import { isFixedExpenseActiveInMonth } from "@/modules/fixed-expenses/services/fixed-expense-services";
 
 export interface DashboardOverview {
   incomeThisMonthInCents: string;
@@ -15,16 +17,17 @@ export interface DashboardOverview {
 }
 
 export class GetDashboardOverviewService {
-  constructor(private readonly transactions: TransactionRepository) {}
+  constructor(private readonly transactions: TransactionRepository, private readonly fixedExpenses: FixedExpenseRepository) {}
 
   async execute(userId: string): Promise<DashboardOverview> {
     const now = new Date();
     const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     const periodStart = new Date(now.getFullYear(), now.getMonth() - 5, 1);
-    const [periodTransactions, latestTransactions] = await Promise.all([
+    const [periodTransactions, latestTransactions, fixedExpenses] = await Promise.all([
       this.transactions.listByPeriod(userId, periodStart, nextMonthStart),
       this.transactions.listLatestCreated(userId, 30),
+      this.fixedExpenses.list(userId),
     ]);
 
     let incomeThisMonth = 0n;
@@ -48,6 +51,16 @@ export class GetDashboardOverviewService {
       if (transaction.occurredAt >= currentMonthStart && transaction.occurredAt < nextMonthStart) {
         if (transaction.type === "INCOME") incomeThisMonth += transaction.amountInCents;
         if (transaction.type === "EXPENSE") expenseThisMonth += transaction.amountInCents;
+      }
+    }
+
+    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    for (const fixedExpense of fixedExpenses) {
+      if (isFixedExpenseActiveInMonth(fixedExpense, currentMonthKey)) expenseThisMonth += fixedExpense.amountInCents;
+      for (const month of months) {
+        const [year, zeroBasedMonth] = month.key.split("-").map(Number);
+        const monthKey = `${year}-${String(zeroBasedMonth + 1).padStart(2, "0")}`;
+        if (isFixedExpenseActiveInMonth(fixedExpense, monthKey)) month.expense += fixedExpense.amountInCents;
       }
     }
 

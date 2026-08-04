@@ -30,9 +30,12 @@ class InMemoryTransactionRepository implements TransactionRepository {
   async listByPeriod() { return []; }
   async listRecent() { return []; }
   async listLatestCreated() { return []; }
+  async findByInstallmentGroup() { return []; }
   async save(transaction: Transaction) { this.transaction = transaction; }
   async saveMany() {}
   async softDelete(id: string) { this.deletedId = id; }
+  async softDeleteMany() {}
+  async replaceMany() {}
 }
 
 describe("serviços de manutenção de entradas", () => {

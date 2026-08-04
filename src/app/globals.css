@@ -82,6 +82,7 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
 .menu-icon { width: 36px; height: 36px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 11px; }
 .menu-icon.income { background: var(--brand-soft); color: var(--positive); }
 .menu-icon.expense { background: color-mix(in srgb, var(--negative) 11%, var(--surface)); color: var(--negative); }
+.menu-icon.fixed { background: color-mix(in srgb, var(--warning) 14%, var(--surface)); color: var(--warning); }
 .secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 14px; background: var(--surface); color: var(--brand-strong); font-size: 13px; font-weight: 650; }
 .secondary-button:hover { background: var(--surface-soft); }
 .secondary-button:disabled { cursor: not-allowed; opacity: .5; }

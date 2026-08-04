@@ -4,7 +4,15 @@ Aplicação pessoal para organizar finanças e acompanhar investimentos com uma 
 
 ## Estado atual
 
-A fundação inclui dashboard responsivo, tema claro/escuro, Design Tokens, integração server-side com Firestore e autenticação Google. Entradas podem ser cadastradas, editadas e apagadas; compras no cartão geram automaticamente parcelas futuras e alimentam o fluxo mensal.
+A fundação inclui dashboard responsivo, tema claro/escuro, Design Tokens, integração server-side com Firestore e autenticação Google. Entradas, gastos fixos e compras no cartão possuem CRUD completo. Compras parceladas geram automaticamente os vencimentos futuros, enquanto gastos fixos recorrentes são somados ao fluxo mensal dentro do período informado.
+
+## Funcionalidades atuais
+
+- Login obrigatório com Google e acesso restrito por lista de e-mails autorizados.
+- Entradas com cadastro, edição e exclusão lógica.
+- Compras no cartão à vista ou parceladas, com edição e exclusão aplicadas à compra completa.
+- Gastos fixos recorrentes com dia de vencimento, mês inicial e mês final opcional.
+- Dashboard consolidando entradas, parcelas do cartão e gastos fixos ativos no mês.
 
 ## Requisitos
 
