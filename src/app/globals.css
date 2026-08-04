@@ -162,6 +162,7 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
 .page-description { margin: 10px 0 0; color: var(--muted); font-size: 13px; }
 .feedback { margin: -12px 0 18px; padding: 12px 14px; border-radius: 11px; font-size: 13px; }
 .feedback.success { border: 1px solid color-mix(in srgb, var(--positive) 30%, var(--line)); background: color-mix(in srgb, var(--positive) 8%, var(--surface)); color: var(--positive); }
+.feedback.error { border: 1px solid color-mix(in srgb, var(--negative) 30%, var(--line)); background: color-mix(in srgb, var(--negative) 8%, var(--surface)); color: var(--negative); }
 .entry-form-card { margin-top: 16px; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-sm); }
 .form-head { align-items: center; }
 .icon-button.subtle { min-height: 34px; width: 34px; background: var(--surface-soft); }
@@ -214,6 +215,34 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
 .confirmation-card > p { margin: 10px auto 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .dialog-danger-icon { width: 48px; height: 48px; display: grid; place-items: center; margin: 0 auto; border-radius: 14px; background: color-mix(in srgb, var(--negative) 12%, var(--surface)); color: var(--negative); }
 
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+.investment-form { margin: 0 0 16px; }
+.investment-form-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.investment-form-grid .field-wide { grid-column: span 2; }
+.investment-form-grid .field-full { grid-column: 1 / -1; }
+.field textarea { width: 100%; padding: 11px 12px; resize: vertical; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; font-size: 13px; }
+.field textarea:focus { border-color: var(--brand); outline: 3px solid color-mix(in srgb, var(--brand) 13%, transparent); }
+.summary-card { position: relative; display: grid; gap: 8px; padding: 21px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-sm); }
+.summary-card > span { color: var(--muted); font-size: 12px; }
+.summary-card > strong { font-size: clamp(22px, 2.2vw, 29px); letter-spacing: -.04em; }
+.summary-card > small { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.summary-card .metric-icon { position: absolute; top: 18px; right: 18px; }
+.positive-text { color: var(--positive); }
+.negative-text { color: var(--negative); }
+.investment-list-card { margin-top: 16px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-sm); }
+.investment-table td:first-child strong, .investment-table td:first-child span { display: block; }
+.investment-table td:first-child span { margin-top: 4px; color: var(--muted); font-size: 11px; }
+.risk-badge { display: inline-flex; padding: 5px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; }
+.risk-badge.low { background: color-mix(in srgb, var(--positive) 11%, var(--surface)); color: var(--positive); }
+.risk-badge.medium { background: color-mix(in srgb, var(--warning) 13%, var(--surface)); color: var(--warning); }
+.risk-badge.high { background: color-mix(in srgb, var(--negative) 10%, var(--surface)); color: var(--negative); }
+.investment-empty { min-height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; border: 1px dashed var(--line); border-radius: 14px; background: var(--surface-soft); color: var(--brand-strong); }
+.investment-empty h3 { margin: 15px 0 0; color: var(--text); font-size: 17px; }
+.investment-empty p { max-width: 500px; margin: 8px 0 18px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.dialog-copy { text-align: center; }
+.dialog-copy h2 { margin: 18px 0 0; }
+.dialog-copy p { margin: 9px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
 @media (max-width: 980px) {
   .app-shell { grid-template-columns: 78px 1fr; }
   .sidebar { padding-inline: 12px; }
@@ -221,6 +250,7 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
   .brand > span:last-child, .nav-item span, .profile-copy { display: none; }
   .nav-item { justify-content: center; padding: 0; }
   .profile { justify-content: center; padding: 8px; }
+  .investment-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .logout-button { display: none; }
   .sidebar-footer { inset-inline: 12px; }
 }
@@ -245,6 +275,10 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
 
 @media (max-width: 620px) {
   .page-topbar { align-items: flex-start; }
+  .page-topbar { flex-direction: column; }
+  .topbar-actions { width: 100%; flex-wrap: wrap; }
+  .investment-form-grid { grid-template-columns: 1fr; }
+  .investment-form-grid .field-wide, .investment-form-grid .field-full { grid-column: auto; }
   .entry-form-card { padding: 16px; }
   .entry-row { grid-template-columns: 1fr; padding: 15px; }
   .field-description { grid-column: auto; }

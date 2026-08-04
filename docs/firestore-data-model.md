@@ -6,6 +6,7 @@ users/{userId}
   categories/{categoryId}
   transactions/{transactionId}
   fixedExpenses/{fixedExpenseId}
+  investments/{investmentId}
   budgets/{budgetId}
   goals/{goalId}
   assets/{assetId}
@@ -28,3 +29,4 @@ users/{userId}
 - A edição ou exclusão de uma compra no cartão atua sobre todo o grupo de parcelas. A substituição do cronograma é feita em batch para não deixar parcelas parcialmente atualizadas.
 - Gastos recorrentes ficam em `fixedExpenses`, com `dueDay`, `startMonth` e `endMonth`. Quando `endMonth` é nulo, a recorrência permanece ativa até ser encerrada ou excluída.
 - Exclusões são lógicas por meio de `deletedAt`, preservando rastreabilidade e evitando perda irreversível de dados.
+- Investimentos confirmados ficam em `investments`. Valores monetários permanecem em centavos como string; `source` diferencia cadastros manuais de importações por IA e `confirmed` impede que extrações duvidosas sejam tratadas como patrimônio validado.

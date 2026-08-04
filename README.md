@@ -13,6 +13,16 @@ A fundação inclui dashboard responsivo, tema claro/escuro, Design Tokens, inte
 - Compras no cartão à vista ou parceladas, com edição e exclusão aplicadas à compra completa.
 - Gastos fixos recorrentes com dia de vencimento, mês inicial e mês final opcional.
 - Dashboard consolidando entradas, parcelas do cartão e gastos fixos ativos no mês.
+- Investimentos com formulário adaptável por categoria, valores, risco, liquidez, tributação e CRUD completo.
+- Patrimônio manual consolidado em BRL sem converter silenciosamente posições em outras moedas.
+
+### Evolução planejada do módulo de investimentos
+
+1. Fundação e CRUD manual de investimentos (concluído).
+2. Upload seguro de PDFs e extração estruturada com Gemini.
+3. Tela de conferência das informações extraídas antes da gravação.
+4. Dashboard patrimonial, histórico, distribuição e comparativos.
+5. Perfil, simulações, alertas e análises educativas sem caráter de recomendação profissional.
 
 ## Requisitos
 

@@ -20,7 +20,7 @@ const navigation = [
   { label: "Transações", icon: ReceiptText },
   { label: "Contas", icon: WalletCards },
   { label: "Planejamento", icon: Goal },
-  { label: "Investimentos", icon: TrendingUp },
+  { label: "Investimentos", icon: TrendingUp, href: "/investimentos" },
   { label: "Configurações", icon: Settings },
 ];
 
