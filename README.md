@@ -4,7 +4,7 @@ Aplicação pessoal para organizar finanças e acompanhar investimentos com uma 
 
 ## Estado atual
 
-A fundação inclui dashboard responsivo, tema claro/escuro, Design Tokens, integração server-side com Firestore e autenticação Google. A página de entradas permite cadastrar até 20 recebimentos por vez; o dashboard calcula o fluxo mensal exclusivamente a partir desses registros.
+A fundação inclui dashboard responsivo, tema claro/escuro, Design Tokens, integração server-side com Firestore e autenticação Google. A página de entradas permite cadastrar até 20 recebimentos por vez, editar e apagar lançamentos; o dashboard calcula o fluxo mensal exclusivamente a partir dos registros ativos.
 
 ## Requisitos
 
@@ -96,6 +96,7 @@ Como alternativa para plataformas sem arquivo de credenciais, configure `FIREBAS
 - A sessão é validada pelo Firebase Admin e armazenada em cookie `HttpOnly`, `Secure` em produção e `SameSite`.
 - A autorização por e-mail é repetida no servidor; ocultar a interface no navegador não é considerado controle de acesso.
 - Entradas são sempre vinculadas ao `uid` obtido da sessão; o cliente não escolhe o proprietário dos dados.
+- Exclusões financeiras são lógicas (`deletedAt`), preservando rastreabilidade e evitando perda irreversível imediata.
 
 ## Deploy
 

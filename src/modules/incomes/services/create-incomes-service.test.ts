@@ -11,6 +11,7 @@ class InMemoryTransactionRepository implements TransactionRepository {
   async listRecent() { return []; }
   async save(transaction: Transaction) { this.saved.push(transaction); }
   async saveMany(transactions: Transaction[]) { this.saved.push(...transactions); }
+  async softDelete() {}
 }
 
 describe("CreateIncomesService", () => {

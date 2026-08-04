@@ -88,6 +88,13 @@ export class FirestoreTransactionRepository implements TransactionRepository {
     await batch.commit();
   }
 
+  async softDelete(id: string, userId: string, deletedAt: Date): Promise<void> {
+    await this.collection(userId).doc(id).update({
+      deletedAt: Timestamp.fromDate(deletedAt),
+      updatedAt: Timestamp.fromDate(deletedAt),
+    });
+  }
+
   private toDomain(id: string, userId: string, document: TransactionDocument): Transaction {
     return {
       id,

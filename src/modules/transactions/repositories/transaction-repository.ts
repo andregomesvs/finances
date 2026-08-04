@@ -6,4 +6,5 @@ export interface TransactionRepository {
   listRecent(userId: string, limit: number): Promise<Transaction[]>;
   save(transaction: Transaction): Promise<void>;
   saveMany(transactions: Transaction[]): Promise<void>;
+  softDelete(id: string, userId: string, deletedAt: Date): Promise<void>;
 }
