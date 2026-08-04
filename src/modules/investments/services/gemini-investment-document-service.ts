@@ -86,9 +86,8 @@ Valores permitidos para categoryId: ${investmentCategories.map((item) => item.va
 
 Analise todas as páginas, inclusive tabelas e imagens incorporadas.`;
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent`;
     const contents = [{ parts: [{ inlineData: { mimeType: "application/pdf", data: pdf.toString("base64") } }, { text: prompt }] }];
-    const request = (withSchema: boolean) => fetch(endpoint, {
+    const request = (model: string, withSchema: boolean) => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY },
       body: JSON.stringify({
@@ -100,16 +99,26 @@ Analise todas as páginas, inclusive tabelas e imagens incorporadas.`;
       signal: AbortSignal.timeout(90_000),
     });
 
-    let response = await request(true);
-    let payload = await response.json() as GeminiResponse;
-    if (!response.ok && response.status === 400) {
-      console.warn("Gemini recusou o schema; repetindo com JSON validado pela aplicação", { status: response.status, message: payload.error?.message });
-      response = await request(false);
+    const modelCandidates = [...new Set([GEMINI_MODEL, "gemini-3.5-flash", "gemini-flash-latest", "gemini-2.5-flash"])];
+    let response: Response | null = null;
+    let payload: GeminiResponse = {};
+
+    for (const model of modelCandidates) {
+      response = await request(model, true);
       payload = await response.json() as GeminiResponse;
+      if (!response.ok && response.status === 400) {
+        console.warn("Gemini recusou o schema; repetindo com JSON validado pela aplicação", { model, status: response.status, message: payload.error?.message });
+        response = await request(model, false);
+        payload = await response.json() as GeminiResponse;
+      }
+      if (response.status !== 404) break;
+      console.warn("Modelo Gemini indisponível; tentando alternativa compatível", { model });
     }
-    if (!response.ok) {
-      console.error("Gemini recusou análise de documento", { status: response.status, message: payload.error?.message });
-      throw new InvestmentDocumentAnalysisError(userMessageForGeminiStatus(response.status));
+
+    if (!response || !response.ok) {
+      const status = response?.status ?? 500;
+      console.error("Gemini recusou análise de documento", { status, message: payload.error?.message });
+      throw new InvestmentDocumentAnalysisError(userMessageForGeminiStatus(status));
     }
 
     const text = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim();

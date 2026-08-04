@@ -25,7 +25,7 @@ const authEnvSchema = z.object({
 
 const geminiEnvSchema = z.object({
   GEMINI_API_KEY: z.string().min(1, "GEMINI_API_KEY é obrigatória"),
-  GEMINI_MODEL: z.string().min(1).default("gemini-2.5-flash"),
+  GEMINI_MODEL: z.string().min(1).default("gemini-3.5-flash"),
 });
 
 export type FirebaseEnv = z.infer<typeof firebaseEnvSchema>;
