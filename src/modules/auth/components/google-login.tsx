@@ -2,9 +2,22 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { FirebaseError } from "firebase/app";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { LoaderCircle } from "lucide-react";
 import { firebaseClientAuth } from "@/infrastructure/firebase/client";
+
+function getLoginError(error: unknown): string {
+  if (error instanceof FirebaseError) {
+    if (error.code === "auth/popup-closed-by-user") return "Login cancelado antes da conclusão.";
+    if (error.code === "auth/popup-blocked") return "O navegador bloqueou a janela do Google. Libere popups e tente novamente.";
+    if (error.code === "auth/unauthorized-domain") return "Este domínio ainda não está autorizado no Firebase Authentication.";
+    if (error.code === "auth/network-request-failed") return "Não foi possível conectar ao Google. Verifique sua internet e tente novamente.";
+  }
+
+  if (error instanceof Error && error.message) return error.message;
+  return "Não foi possível entrar com o Google. Verifique a conta e tente novamente.";
+}
 
 export function GoogleLogin() {
   const router = useRouter();
@@ -35,10 +48,7 @@ export function GoogleLogin() {
       router.replace("/");
       router.refresh();
     } catch (caughtError) {
-      const message = caughtError instanceof Error && caughtError.message.includes("não possui acesso")
-        ? caughtError.message
-        : "Não foi possível entrar com o Google. Verifique a conta e tente novamente.";
-      setError(message);
+      setError(getLoginError(caughtError));
     } finally {
       setIsLoading(false);
     }

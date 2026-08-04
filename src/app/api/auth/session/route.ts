@@ -12,7 +12,16 @@ const requestSchema = z.object({ idToken: z.string().min(1).max(10_000) });
 
 function isSameOrigin(request: NextRequest): boolean {
   const origin = request.headers.get("origin");
-  return origin !== null && origin === request.nextUrl.origin;
+  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const requestHost = forwardedHost || request.headers.get("host");
+
+  if (!origin || !requestHost) return false;
+
+  try {
+    return new URL(origin).host === requestHost;
+  } catch {
+    return false;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -38,6 +47,11 @@ export async function POST(request: NextRequest) {
     const message = error instanceof UnauthorizedUserError
       ? error.message
       : "Não foi possível validar o login. Tente novamente.";
+
+    if (!(error instanceof UnauthorizedUserError)) {
+      console.error("Falha ao criar sessão do Firebase", error);
+    }
+
     return NextResponse.json({ message }, { status: 401 });
   }
 }
