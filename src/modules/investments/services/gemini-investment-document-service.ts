@@ -8,8 +8,8 @@ const responseSchema = {
   type: "object",
   properties: {
     documentSummary: { type: "string" },
-    detectedInstitution: { type: ["string", "null"] },
-    reportDate: { type: ["string", "null"] },
+    detectedInstitution: { type: "string", nullable: true },
+    reportDate: { type: "string", nullable: true },
     investments: {
       type: "array",
       items: {
@@ -18,23 +18,23 @@ const responseSchema = {
           name: { type: "string" },
           categoryId: { type: "string", enum: investmentCategories.map((item) => item.value) },
           institution: { type: "string" },
-          investedAmountInCents: { type: ["integer", "null"] },
-          currentAmountInCents: { type: ["integer", "null"] },
+          investedAmountInCents: { type: "integer", nullable: true },
+          currentAmountInCents: { type: "integer", nullable: true },
           currency: { type: "string", enum: ["BRL", "USD", "EUR"] },
-          appliedAt: { type: ["string", "null"] },
-          maturityDate: { type: ["string", "null"] },
+          appliedAt: { type: "string", nullable: true },
+          maturityDate: { type: "string", nullable: true },
           liquidity: { type: "string" },
           riskLevel: { type: "string", enum: ["LOW", "MEDIUM", "HIGH"] },
           taxation: { type: "string" },
-          annualReturnPct: { type: ["number", "null"] },
-          ticker: { type: ["string", "null"] },
-          quantity: { type: ["string", "null"] },
-          averagePriceInCents: { type: ["integer", "null"] },
-          yieldType: { type: ["string", "null"] },
-          yieldRatePct: { type: ["number", "null"] },
-          country: { type: ["string", "null"] },
-          sector: { type: ["string", "null"] },
-          notes: { type: ["string", "null"] },
+          annualReturnPct: { type: "number", nullable: true },
+          ticker: { type: "string", nullable: true },
+          quantity: { type: "string", nullable: true },
+          averagePriceInCents: { type: "integer", nullable: true },
+          yieldType: { type: "string", nullable: true },
+          yieldRatePct: { type: "number", nullable: true },
+          country: { type: "string", nullable: true },
+          sector: { type: "string", nullable: true },
+          notes: { type: "string", nullable: true },
           confidence: { type: "number", minimum: 0, maximum: 1 },
           uncertainties: { type: "array", items: { type: "string" } },
         },
@@ -52,6 +52,13 @@ interface GeminiResponse {
 }
 
 export class InvestmentDocumentAnalysisError extends Error {}
+
+function userMessageForGeminiStatus(status: number) {
+  if (status === 401 || status === 403) return "A chave do Gemini não possui permissão para analisar documentos. Verifique a chave configurada no Render.";
+  if (status === 404) return "O modelo Gemini configurado não está disponível para esta conta.";
+  if (status === 429) return "O limite de uso do Gemini foi atingido. Aguarde alguns minutos e tente novamente.";
+  return "O Gemini não conseguiu analisar este documento.";
+}
 
 export class GeminiInvestmentDocumentService {
   async analyze(pdf: Buffer): Promise<InvestmentDocumentExtraction> {
@@ -73,22 +80,36 @@ Regras obrigatórias:
 - O campo notes deve ser factual e curto. Não produza recomendação de investimento.
 - Inclua em warnings totais que não fecham, campos ilegíveis e possíveis duplicidades.
 
+Retorne somente um objeto JSON com documentSummary, detectedInstitution, reportDate, investments e warnings.
+Cada item de investments deve conter exatamente: name, categoryId, institution, investedAmountInCents, currentAmountInCents, currency, appliedAt, maturityDate, liquidity, riskLevel, taxation, annualReturnPct, ticker, quantity, averagePriceInCents, yieldType, yieldRatePct, country, sector, notes, confidence e uncertainties.
+Valores permitidos para categoryId: ${investmentCategories.map((item) => item.value).join(", ")}.
+
 Analise todas as páginas, inclusive tabelas e imagens incorporadas.`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent`, {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent`;
+    const contents = [{ parts: [{ inlineData: { mimeType: "application/pdf", data: pdf.toString("base64") } }, { text: prompt }] }];
+    const request = (withSchema: boolean) => fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY },
       body: JSON.stringify({
-        contents: [{ parts: [{ inlineData: { mimeType: "application/pdf", data: pdf.toString("base64") } }, { text: prompt }] }],
-        generationConfig: { temperature: 0.1, responseMimeType: "application/json", responseJsonSchema: responseSchema },
+        contents,
+        generationConfig: withSchema
+          ? { temperature: 0.1, responseMimeType: "application/json", responseSchema }
+          : { temperature: 0.1, responseMimeType: "application/json" },
       }),
       signal: AbortSignal.timeout(90_000),
     });
 
-    const payload = await response.json() as GeminiResponse;
+    let response = await request(true);
+    let payload = await response.json() as GeminiResponse;
+    if (!response.ok && response.status === 400) {
+      console.warn("Gemini recusou o schema; repetindo com JSON validado pela aplicação", { status: response.status, message: payload.error?.message });
+      response = await request(false);
+      payload = await response.json() as GeminiResponse;
+    }
     if (!response.ok) {
       console.error("Gemini recusou análise de documento", { status: response.status, message: payload.error?.message });
-      throw new InvestmentDocumentAnalysisError("O Gemini não conseguiu analisar este documento.");
+      throw new InvestmentDocumentAnalysisError(userMessageForGeminiStatus(response.status));
     }
 
     const text = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim();
