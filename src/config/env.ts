@@ -19,8 +19,17 @@ const firebaseEnvSchema = z.object({
   ),
 });
 
+const authEnvSchema = z.object({
+  FIREBASE_ALLOWED_EMAIL: z.email("FIREBASE_ALLOWED_EMAIL deve ser um e-mail válido"),
+});
+
 export type FirebaseEnv = z.infer<typeof firebaseEnvSchema>;
+export type AuthEnv = z.infer<typeof authEnvSchema>;
 
 export function getFirebaseEnv(): FirebaseEnv {
   return firebaseEnvSchema.parse(process.env);
+}
+
+export function getAuthEnv(): AuthEnv {
+  return authEnvSchema.parse(process.env);
 }

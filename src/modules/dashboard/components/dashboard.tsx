@@ -3,36 +3,19 @@ import {
   ArrowUpRight,
   BarChart3,
   Bell,
-  BriefcaseBusiness,
-  ChevronRight,
   CircleDollarSign,
   Goal,
   Home,
-  Landmark,
   Plus,
   ReceiptText,
   Settings,
-  ShoppingBag,
   TrendingUp,
   WalletCards,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import type { AuthenticatedUser } from "@/modules/auth/domain/authenticated-user";
+import { LogoutButton } from "@/modules/auth/components/logout-button";
 import { formatCurrency } from "@/utils/money";
-
-const months = [
-  { label: "Mar", income: 61, expense: 42 },
-  { label: "Abr", income: 72, expense: 48 },
-  { label: "Mai", income: 68, expense: 54 },
-  { label: "Jun", income: 79, expense: 46 },
-  { label: "Jul", income: 74, expense: 58 },
-  { label: "Ago", income: 84, expense: 49 },
-];
-
-const transactions = [
-  { name: "Supermercado Vila", meta: "Alimentação · Hoje", value: -286.4, icon: ShoppingBag },
-  { name: "Salário", meta: "Receita · 01 ago", value: 8500, icon: BriefcaseBusiness },
-  { name: "Tesouro Selic 2029", meta: "Investimento · 31 jul", value: -1000, icon: Landmark },
-];
 
 const nav = [
   { label: "Visão geral", icon: Home, active: true },
@@ -43,7 +26,29 @@ const nav = [
   { label: "Configurações", icon: Settings },
 ];
 
-export function Dashboard() {
+function getFirstName(user: AuthenticatedUser) {
+  return user.name?.trim().split(/\s+/)[0] || "André";
+}
+
+function getInitials(user: AuthenticatedUser) {
+  const source = user.name?.trim() || user.email;
+  return source.split(/[\s@._-]+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+}
+
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Bom dia";
+  if (hour < 18) return "Boa tarde";
+  return "Boa noite";
+}
+
+export function Dashboard({ user }: { user: AuthenticatedUser }) {
+  const today = new Intl.DateTimeFormat("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(new Date());
+
   return (
     <div className="app-shell">
       <aside className="sidebar" aria-label="Navegação principal">
@@ -56,68 +61,75 @@ export function Dashboard() {
           ))}
         </nav>
         <div className="sidebar-footer">
-          <div className="profile"><span className="avatar">AS</span><span className="profile-copy"><strong>André Silva</strong><span>Conta pessoal</span></span></div>
+          <div className="profile">
+            <span className="avatar">{getInitials(user)}</span>
+            <span className="profile-copy"><strong>{user.name ?? user.email}</strong><span>Conta pessoal</span></span>
+            <LogoutButton />
+          </div>
         </div>
       </aside>
 
       <main className="main">
         <header className="topbar">
-          <div><p className="eyebrow">Domingo, 3 de agosto</p><h1>Boa tarde, André.</h1></div>
+          <div><p className="eyebrow date-label">{today}</p><h1>{getGreeting()}, {getFirstName(user)}.</h1></div>
           <div className="actions">
             <ThemeToggle />
             <button className="icon-button" type="button" aria-label="Notificações"><Bell size={17} aria-hidden="true" /></button>
-            <button className="primary-button" type="button"><Plus size={17} aria-hidden="true" /><span>Nova transação</span></button>
+            <button className="primary-button" type="button" disabled title="Disponível na próxima etapa"><Plus size={17} aria-hidden="true" /><span>Nova transação</span></button>
           </div>
         </header>
 
         <section className="summary-grid" aria-label="Resumo financeiro">
           <article className="card metric">
             <div className="metric-head"><span>Patrimônio líquido</span><span className="metric-icon"><CircleDollarSign size={17} /></span></div>
-            <strong className="metric-value">{formatCurrency(128430.72)}</strong>
-            <p className="metric-note"><span className="positive">↑ 2,8%</span> nos últimos 30 dias</p>
+            <strong className="metric-value">{formatCurrency(0)}</strong>
+            <p className="metric-note">Cadastre suas contas para começar</p>
           </article>
           <article className="card metric">
-            <div className="metric-head"><span>Entradas em agosto</span><span className="metric-icon"><ArrowUpRight size={17} /></span></div>
-            <strong className="metric-value">{formatCurrency(10250)}</strong>
-            <p className="metric-note">R$ 1.750 além do salário</p>
+            <div className="metric-head"><span>Entradas no mês</span><span className="metric-icon"><ArrowUpRight size={17} /></span></div>
+            <strong className="metric-value">{formatCurrency(0)}</strong>
+            <p className="metric-note">Nenhuma entrada cadastrada</p>
           </article>
           <article className="card metric">
-            <div className="metric-head"><span>Saídas em agosto</span><span className="metric-icon"><ArrowDownRight size={17} /></span></div>
-            <strong className="metric-value">{formatCurrency(4782.34)}</strong>
-            <p className="metric-note"><span className="positive">R$ 717,66 abaixo</span> do planejado</p>
+            <div className="metric-head"><span>Saídas no mês</span><span className="metric-icon"><ArrowDownRight size={17} /></span></div>
+            <strong className="metric-value">{formatCurrency(0)}</strong>
+            <p className="metric-note">Nenhuma saída cadastrada</p>
           </article>
         </section>
 
         <section className="content-grid">
           <article className="card section-card">
-            <header className="section-head"><div><h2>Fluxo mensal</h2><p>Entradas e saídas dos últimos 6 meses</p></div><button className="text-button" type="button">Ver relatório</button></header>
-            <div className="chart" role="img" aria-label="Gráfico de entradas e saídas mensais">
-              {months.map((month) => <div className="bar-group" key={month.label}><i className="bar" style={{ height: `${month.income}%` }} /><i className="bar expense" style={{ height: `${month.expense}%` }} /><span className="bar-label">{month.label}</span></div>)}
+            <header className="section-head"><div><h2>Fluxo mensal</h2><p>Entradas e saídas dos últimos 6 meses</p></div></header>
+            <div className="empty-chart" role="status">
+              <span className="empty-icon"><BarChart3 size={22} aria-hidden="true" /></span>
+              <strong>Seu histórico aparecerá aqui</strong>
+              <p>O gráfico será criado automaticamente após os primeiros lançamentos.</p>
             </div>
-            <div className="chart-legend"><span><i className="legend-dot" />Entradas</span><span><i className="legend-dot soft" />Saídas</span></div>
           </article>
 
           <article className="card section-card">
-            <header className="section-head"><div><h2>Carteira</h2><p>Distribuição por classe</p></div><button className="text-button" type="button">Detalhes</button></header>
-            <div className="allocation"><div className="donut" role="img" aria-label="R$ 93,7 mil investidos, distribuídos por classe" /></div>
-            <div className="allocation-list">
-              {[["Renda fixa", 42], ["Ações", 26], ["FIIs", 18], ["Outros", 14]].map(([label, value]) => <div className="allocation-row" key={String(label)}><strong>{label}</strong><span>{value}%</span><div className="progress"><i style={{ width: `${value}%` }} /></div></div>)}
+            <header className="section-head"><div><h2>Carteira</h2><p>Distribuição por classe</p></div></header>
+            <div className="empty-chart compact" role="status">
+              <span className="empty-icon"><TrendingUp size={22} aria-hidden="true" /></span>
+              <strong>Nenhum investimento</strong>
+              <p>Cadastre sua carteira para acompanhar a distribuição.</p>
             </div>
           </article>
         </section>
 
         <section className="bottom-grid">
           <article className="card section-card">
-            <header className="section-head"><div><h2>Movimentações recentes</h2><p>Últimos lançamentos registrados</p></div><button className="text-button" type="button">Ver todas <ChevronRight size={12} /></button></header>
-            <div className="transaction-list">
-              {transactions.map(({ name, meta, value, icon: Icon }) => <div className="transaction" key={name}><span className="transaction-icon"><Icon size={17} /></span><div><strong>{name}</strong><span>{meta}</span></div><strong className={`transaction-value ${value > 0 ? "positive" : ""}`}>{value > 0 ? "+ " : "− "}{formatCurrency(Math.abs(value))}</strong></div>)}
+            <header className="section-head"><div><h2>Movimentações recentes</h2><p>Últimos lançamentos registrados</p></div></header>
+            <div className="empty-list" role="status">
+              <span className="empty-icon"><ReceiptText size={21} aria-hidden="true" /></span>
+              <div><strong>Nenhuma movimentação ainda</strong><p>Somente os lançamentos cadastrados por você serão exibidos.</p></div>
             </div>
           </article>
           <article className="card section-card">
             <header className="section-head"><div><h2>Orçamento do mês</h2><p>Uso do limite planejado</p></div><span className="metric-icon"><BarChart3 size={17} /></span></header>
-            <div className="budget-value"><strong>68%</strong><span>R$ 4.782 de R$ 7.000</span></div>
-            <div className="budget-track"><i /></div>
-            <p className="budget-note">Você pode gastar <strong>{formatCurrency(2217.66)}</strong> até o fim de agosto sem ultrapassar o orçamento.</p>
+            <div className="budget-value"><strong>0%</strong><span>Nenhum orçamento definido</span></div>
+            <div className="budget-track"><i style={{ width: 0 }} /></div>
+            <p className="budget-note">Defina um orçamento mensal para acompanhar seus limites com clareza.</p>
           </article>
         </section>
       </main>

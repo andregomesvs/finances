@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { getFirebaseEnv } from "./env";
+import { getAuthEnv, getFirebaseEnv } from "./env";
 
 const originalEnv = process.env;
 
@@ -29,5 +29,11 @@ describe("getFirebaseEnv", () => {
     };
 
     expect(() => getFirebaseEnv()).toThrow();
+  });
+
+  it("valida o e-mail autorizado", () => {
+    process.env = { ...originalEnv, FIREBASE_ALLOWED_EMAIL: "andre@example.com" };
+
+    expect(getAuthEnv()).toEqual({ FIREBASE_ALLOWED_EMAIL: "andre@example.com" });
   });
 });
