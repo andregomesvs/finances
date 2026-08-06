@@ -16,6 +16,7 @@ A fundação inclui dashboard responsivo, tema claro/escuro, Design Tokens, inte
 - Investimentos com formulário adaptável por categoria, valores, risco, liquidez, tributação e CRUD completo.
 - Patrimônio manual consolidado em BRL sem converter silenciosamente posições em outras moedas.
 - Importação de PDFs com extração estruturada pelo Gemini e conferência antes da gravação.
+- Conexão de contas bancárias e cartões via Pluggy/Open Finance, com saldos consolidados por instituição.
 
 ### Evolução planejada do módulo de investimentos
 
@@ -101,6 +102,7 @@ Como alternativa para plataformas sem arquivo de credenciais, configure `FIREBAS
 - `NEXT_PUBLIC_FIREBASE_*`: configuração pública do aplicativo Web cadastrado no Firebase.
 - `APP_URL`: endereço da aplicação.
 - `AUTH_SECRET`: reservado para a etapa de autenticação.
+- `PLUGGY_CLIENT_ID` e `PLUGGY_CLIENT_SECRET`: credenciais server-side da aplicação Pluggy; nunca use prefixo `NEXT_PUBLIC_`.
 
 ## Comandos
 

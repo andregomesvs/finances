@@ -285,6 +285,23 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
 .import-floating-error { position: fixed; z-index: 150; right: 20px; bottom: 20px; max-width: 420px; display: flex; gap: 12px; align-items: center; padding: 13px 14px; border: 1px solid color-mix(in srgb, var(--negative) 35%, var(--line)); border-radius: 12px; background: var(--surface); color: var(--negative); box-shadow: var(--shadow-md); font-size: 12px; }
 .import-floating-error button { margin-left: auto; border: 0; background: transparent; color: inherit; cursor: pointer; }
 
+.accounts-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, .72fr); gap: 16px; margin-top: 16px; }
+.connected-account-list, .connection-list { display: grid; }
+.connected-account { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 13px; align-items: center; padding: 15px 0; border-top: 1px solid var(--line); }
+.connected-account:first-child, .connection-row:first-child { padding-top: 0; border-top: 0; }
+.institution-logo { width: 42px; height: 42px; display: grid; place-items: center; overflow: hidden; flex: 0 0 auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); color: var(--brand-strong); }
+.institution-logo-image { width: 100%; height: 100%; background: white center / contain no-repeat; border: 7px solid white; }
+.connected-account-copy, .connected-account-balance { min-width: 0; }
+.connected-account-copy strong, .connected-account-copy small, .connected-account-balance strong, .connected-account-balance small, .connection-row strong, .connection-row small { display: block; }
+.connected-account-copy strong, .connection-row strong { overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.connected-account-copy small, .connected-account-balance small, .connection-row small { margin-top: 4px; color: var(--muted); font-size: 10px; }
+.connected-account-balance { text-align: right; }
+.connected-account-balance strong { font-size: 14px; }
+.connection-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 11px; align-items: center; padding: 13px 0; border-top: 1px solid var(--line); }
+.connection-helper { margin: 0; padding: 18px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); font-size: 12px; line-height: 1.55; text-align: center; }
+.recent-transactions-card { margin-top: 16px; }
+.open-finance-transactions .transaction-icon.expense-icon { color: var(--negative); }
+
 @media (max-width: 980px) {
   .app-shell { grid-template-columns: 78px 1fr; }
   .sidebar { padding-inline: 12px; }
@@ -295,6 +312,7 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
   .investment-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .import-position-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .logout-button { display: none; }
+  .accounts-layout { grid-template-columns: 1fr; }
   .sidebar-footer { inset-inline: 12px; }
 }
 
@@ -344,6 +362,8 @@ h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spac
   .expense-form-grid { grid-template-columns: 1fr; }
   .expense-form-grid .field-description { grid-column: auto; }
   .expense-actions { align-items: stretch; }
+  .connected-account { grid-template-columns: auto minmax(0, 1fr); }
+  .connected-account-balance { grid-column: 2; text-align: left; }
 }
 
 @media (prefers-reduced-motion: reduce) {

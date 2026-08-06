@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { getAuthEnv, getFirebaseEnv } from "./env";
+import { getAuthEnv, getFirebaseEnv, getPluggyEnv } from "./env";
 
 const originalEnv = process.env;
 
@@ -35,5 +35,18 @@ describe("getFirebaseEnv", () => {
     process.env = { ...originalEnv, FIREBASE_ALLOWED_EMAIL: "andre@example.com" };
 
     expect(getAuthEnv()).toEqual({ FIREBASE_ALLOWED_EMAIL: "andre@example.com" });
+  });
+
+  it("valida as credenciais server-side da Pluggy", () => {
+    process.env = {
+      ...originalEnv,
+      PLUGGY_CLIENT_ID: "client-id",
+      PLUGGY_CLIENT_SECRET: "client-secret",
+    };
+
+    expect(getPluggyEnv()).toEqual({
+      PLUGGY_CLIENT_ID: "client-id",
+      PLUGGY_CLIENT_SECRET: "client-secret",
+    });
   });
 });

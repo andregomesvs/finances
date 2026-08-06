@@ -28,9 +28,15 @@ const geminiEnvSchema = z.object({
   GEMINI_MODEL: z.string().min(1).default("gemini-3.5-flash"),
 });
 
+const pluggyEnvSchema = z.object({
+  PLUGGY_CLIENT_ID: z.string().min(1, "PLUGGY_CLIENT_ID é obrigatório"),
+  PLUGGY_CLIENT_SECRET: z.string().min(1, "PLUGGY_CLIENT_SECRET é obrigatório"),
+});
+
 export type FirebaseEnv = z.infer<typeof firebaseEnvSchema>;
 export type AuthEnv = z.infer<typeof authEnvSchema>;
 export type GeminiEnv = z.infer<typeof geminiEnvSchema>;
+export type PluggyEnv = z.infer<typeof pluggyEnvSchema>;
 
 export function getFirebaseEnv(): FirebaseEnv {
   return firebaseEnvSchema.parse(process.env);
@@ -42,4 +48,8 @@ export function getAuthEnv(): AuthEnv {
 
 export function getGeminiEnv(): GeminiEnv {
   return geminiEnvSchema.parse(process.env);
+}
+
+export function getPluggyEnv(): PluggyEnv {
+  return pluggyEnvSchema.parse(process.env);
 }

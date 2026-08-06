@@ -18,7 +18,7 @@ const navigation = [
   { label: "Entradas", icon: ArrowDownToLine, href: "/entradas" },
   { label: "Saídas", icon: CreditCard, href: "/saidas" },
   { label: "Transações", icon: ReceiptText },
-  { label: "Contas", icon: WalletCards },
+  { label: "Contas", icon: WalletCards, href: "/contas" },
   { label: "Planejamento", icon: Goal },
   { label: "Investimentos", icon: TrendingUp, href: "/investimentos" },
   { label: "Configurações", icon: Settings },

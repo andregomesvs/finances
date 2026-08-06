@@ -23,6 +23,8 @@ Rotas não acessam o Firestore diretamente. Casos de uso chamam serviços; servi
 6. Valores monetários são strings em centavos, evitando perda de precisão no JavaScript.
 7. Datas usam `Timestamp` nativo do Firestore.
 8. Exclusão lógica e trilha de auditoria continuam obrigatórias.
+9. Credenciais da Pluggy e leitura de dados financeiros ficam no servidor; o navegador recebe somente Connect Tokens temporários e restritos.
+10. O `clientUserId` da Pluggy corresponde ao `uid` do Firebase e é validado antes de persistir cada `itemId`.
 
 ## Limitação consciente
 
