@@ -158,7 +158,7 @@ export function AccountsPage({ initialOverview }: { initialOverview: OpenFinance
         <PluggyConnect
           connectToken={connectToken}
           updateItem={updatingItemId ?? undefined}
-          includeSandbox={process.env.NODE_ENV !== "production"}
+          includeSandbox
           language="pt"
           countries={["BR"]}
           onSuccess={saveItem}
